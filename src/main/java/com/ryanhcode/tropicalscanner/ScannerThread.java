@@ -6,7 +6,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
 import org.apache.logging.log4j.Marker;
@@ -28,7 +32,7 @@ public class ScannerThread extends Thread {
 
     public JsonObject getPage(int page){
         JsonObject json = new JsonParser().parse(ConnectionUtils.read("https://api.hypixel.net/skyblock/auctions?page=" + page)).getAsJsonObject();
-        TropicalScanner.msg("Page " + page + " scanned");
+        //TropicalScanner.msg("Page " + page + " scanned");
         totalPages = json.get("totalPages").getAsInt();
         return json;
     }
@@ -178,7 +182,9 @@ public class ScannerThread extends Thread {
 
     @Override
     public void run() {
-        TropicalScanner.msg("Scanning auction pages..." + isInterrupted());
+        if(ModData.instance.showScan) {
+            TropicalScanner.msg("Scanning auction pages...");
+        }
         while(!isInterrupted()) {
             try {
                 sleep(700);
@@ -198,7 +204,9 @@ public class ScannerThread extends Thread {
                 break;
             }
         }
-        TropicalScanner.msg("Analyzing auction pages...");
+        if(ModData.instance.showScan) {
+            TropicalScanner.msg("Analyzing auction pages...");
+        }
         for(JsonObject page : pages){
             JsonArray auctions = page.get("auctions").getAsJsonArray();
             for(JsonElement auc : auctions){
@@ -215,17 +223,44 @@ public class ScannerThread extends Thread {
                         final JsonObject tag = new JsonParser().parse(result.getTag().valueToString()).getAsJsonObject();
                         for (final JsonElement jsonElement : tag.getAsJsonObject("i").getAsJsonObject("value").getAsJsonArray("list")) {
                             final String color = jsonElement.getAsJsonObject().getAsJsonObject("tag").getAsJsonObject("value").getAsJsonObject("ExtraAttributes").getAsJsonObject("value").getAsJsonObject("color").getAsJsonPrimitive("value").getAsString();
-                            final String id = jsonElement.getAsJsonObject().getAsJsonObject("tag").getAsJsonObject("value").getAsJsonObject("ExtraAttributes").getAsJsonObject("value").getAsJsonObject("id").getAsJsonPrimitive("value").getAsString().toLowerCase();
+                            String id = jsonElement.getAsJsonObject().getAsJsonObject("tag").getAsJsonObject("value").getAsJsonObject("ExtraAttributes").getAsJsonObject("value").getAsJsonObject("id").getAsJsonPrimitive("value").getAsString();
                             final String name = jsonElement.getAsJsonObject().getAsJsonObject("tag").getAsJsonObject("value").getAsJsonObject("display").getAsJsonObject("value").getAsJsonObject("Name").getAsJsonPrimitive("value").getAsString();
                             if (color == null || id == null || name == null) {
                                 continue;
                             }
+                            id = id.toLowerCase();
                             String[] splitColor = color.split(":");
-                            final String hexColor = String.format("%02X%02X%02X", Integer.parseInt(splitColor[0]), Integer.parseInt(splitColor[1]), Integer.parseInt(splitColor[2]));
+                            int red = Integer.parseInt(splitColor[0]);
+                            int green = Integer.parseInt(splitColor[1]);
+                            int blue = Integer.parseInt(splitColor[2]);
+                            final String hexColor = String.format("%02X%02X%02X", red, green, blue);
                             if (crystalArmorColors.contains(hexColor) || fairyArmorColors.contains(hexColor) || skyblockColors.get(id) == null || skyblockColors.get(id).equals(hexColor) || hexColor.equals("A06540")) {
                                 continue;
                             }
-                            TropicalScanner.msg("Found colored item! " + name + ChatFormatting.PREFIX_CODE + ChatFormatting.RESET.getChar() + " with color " + color + ". Sold by " + auction.get("auctioneer").getAsString());
+                            String uuid = auction.get("auctioneer").getAsString();
+                            String msg = "" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[Tropical] " + ChatFormatting.PREFIX_CODE + ChatFormatting.GREEN.GREEN.getChar() + name + ChatFormatting.PREFIX_CODE + ChatFormatting.RESET.getChar() + " $" + Math.max(auction.get("highest_bid_amount").getAsInt(), auction.get("starting_bid").getAsInt()) + " #" + hexColor;
+
+                            IChatComponent comp = new ChatComponentText(msg);
+                            String aucUUIDF = auction.get("uuid").getAsString();
+
+                            String finalAucUUID = java.util.UUID.fromString(
+                                    aucUUIDF
+                                            .replaceFirst(
+                                                    "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"
+                                            )
+                            ).toString();
+
+                            ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "say hello"));
+                            comp.setChatStyle(style);
+
+                            Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
+                            ExoticViewer.exotics.add(new Exotic(
+                                    name,
+                                    finalAucUUID,
+                                    hexColor,
+                                    getIntFromColor(red, green, blue),
+                                    auction.get("ends").getAsLong()
+                            ));
 
                         }
 
@@ -243,5 +278,13 @@ public class ScannerThread extends Thread {
             }
 
         }
+
+    }
+    public int getIntFromColor(int Red, int Green, int Blue){
+        Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
+        Green = (Green << 8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
+        Blue = Blue & 0x000000FF; //Mask out anything not blue.
+
+        return 0xFF000000 | Red | Green | Blue; //0xFF000000 for 100% Alpha. Bitwise OR everything together.
     }
 }

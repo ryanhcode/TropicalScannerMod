@@ -67,7 +67,7 @@ public class TropicalScanner
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event){
         if(menu.isPressed()){
-            Minecraft.getMinecraft().displayGuiScreen(new ConfigScreen());
+            Minecraft.getMinecraft().displayGuiScreen(new ExoticViewer());
         }
     }
 
@@ -87,14 +87,14 @@ public class TropicalScanner
     }
 
     public static void msg(String msg){
-        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[TropicalScanner] " + ChatFormatting.PREFIX_CODE + ChatFormatting.GREEN.GREEN.getChar() + msg));
+        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[Tropical] " + ChatFormatting.PREFIX_CODE + ChatFormatting.GREEN.GREEN.getChar() + msg));
     }
 
     public static void warning(String msg){
-        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[TropicalScanner] " + ChatFormatting.PREFIX_CODE + ChatFormatting.GOLD.getChar() + "WARNING: " + msg));
+        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[Tropical] " + ChatFormatting.PREFIX_CODE + ChatFormatting.GOLD.getChar() + "WARNING: " + msg));
     }
 
     public static void error(String msg){
-        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[TropicalScanner] " + ChatFormatting.PREFIX_CODE + ChatFormatting.RED.getChar() + "ERROR: " + msg));
+        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[Tropical] " + ChatFormatting.PREFIX_CODE + ChatFormatting.RED.getChar() + "ERROR: " + msg));
     }
 }
