@@ -1,0 +1,16 @@
+[
+{
+  "modid": "tropicalscanner",
+  "name": "Tropical Scanner",
+  "description": "An exotic scanner mod.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["RyanHCode"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
