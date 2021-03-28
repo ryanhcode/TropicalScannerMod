@@ -8,12 +8,14 @@ public class Exotic {
     public String hex;
     public int color;
     public long ends;
+    public int price;
 
-    public Exotic(String name, String commandableGUID, String hex, int color, long ends) {
+    public Exotic(String name, String commandableGUID, String hex, int color, long ends, int price) {
         this.name = name;
         this.commandableGUID = commandableGUID;
         this.hex = hex;
         this.color = color;
         this.ends = ends;
+        this.price = price;
     }
 }

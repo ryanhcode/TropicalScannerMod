@@ -30,16 +30,10 @@ public class ScannerThread extends Thread {
     int totalPages = 100;
     int curPage = 0;
 
-    public JsonObject getPage(int page){
-        JsonObject json = new JsonParser().parse(ConnectionUtils.read("https://api.hypixel.net/skyblock/auctions?page=" + page)).getAsJsonObject();
-        //TropicalScanner.msg("Page " + page + " scanned");
-        totalPages = json.get("totalPages").getAsInt();
-        return json;
-    }
-
-    List<String> crystalArmorColors = new ArrayList<String>(Arrays.asList("1F0030", "46085E", "54146E", "5D1C78", "63237D", "6A2C82", "7E4196", "8E51A6", "9C64B3", "A875BD", "B88BC9", "C6A3D4", "D9C1E3", "E5D1ED", "EFE1F5", "FCF3FF"));
-    List<String> fairyArmorColors = new ArrayList<String>(Arrays.asList("660066", "660033", "99004C", "CC0066", "FF007F", "FF3399", "FF66B2", "FF99CC", "FFCCE5", "FF99CC", "FF66B2", "FF3399", "FF007F", "CC0066", "99004C", "660033", "660066", "990099", "CC00CC", "FF00FF", "FF33FF", "FF66FF", "FF99FF", "FFCCFF", "E5CCFF", "CC99FF", "B266FF", "9933FF", "7F00FF", "6600CC", "4C0099", "330066", "4C0099", "6600CC", "7F00FF", "9933FF", "B266FF", "CC99FF", "E5CCFF", "FFCCFF", "FF99FF", "FF66FF", "FF33FF", "FF00FF", "CC00CC", "990099"));
-    Map<String, String> skyblockColors = new HashMap<String, String>() {{
+    public static ArrayList<String> scannedCommandables = new ArrayList();
+    public static List<String> crystalArmorColors = new ArrayList<String>(Arrays.asList("1F0030", "46085E", "54146E", "5D1C78", "63237D", "6A2C82", "7E4196", "8E51A6", "9C64B3", "A875BD", "B88BC9", "C6A3D4", "D9C1E3", "E5D1ED", "EFE1F5", "FCF3FF"));
+    public static List<String> fairyArmorColors = new ArrayList<String>(Arrays.asList("660066", "660033", "99004C", "CC0066", "FF007F", "FF3399", "FF66B2", "FF99CC", "FFCCE5", "FF99CC", "FF66B2", "FF3399", "FF007F", "CC0066", "99004C", "660033", "660066", "990099", "CC00CC", "FF00FF", "FF33FF", "FF66FF", "FF99FF", "FFCCFF", "E5CCFF", "CC99FF", "B266FF", "9933FF", "7F00FF", "6600CC", "4C0099", "330066", "4C0099", "6600CC", "7F00FF", "9933FF", "B266FF", "CC99FF", "E5CCFF", "FFCCFF", "FF99FF", "FF66FF", "FF33FF", "FF00FF", "CC00CC", "990099"));
+    public static Map<String, String> skyblockColors = new HashMap<String, String>() {{
 
         put("ranchers_boots", "CC5500");
         put("squid_boots", "000000");
@@ -180,8 +174,21 @@ public class ScannerThread extends Thread {
         put("farm_suit_chestplate", "FFFF00");
     }};
 
+    public JsonObject getPage(int page){
+        try {
+            JsonObject json = new JsonParser().parse(ConnectionUtils.read("https://api.hypixel.net/skyblock/auctions?page=" + page)).getAsJsonObject();
+            totalPages = json.get("totalPages").getAsInt();
+            return json;
+
+        }catch(Exception e) {
+            TropicalScanner.error("Error fetching auction page- do you have no internet or are you being rate limited?");
+        }
+        return null;
+    }
+
     @Override
     public void run() {
+        TropicalScanner.isScanning = true;
         if(ModData.instance.showScan) {
             TropicalScanner.msg("Scanning auction pages...");
         }
@@ -190,12 +197,14 @@ public class ScannerThread extends Thread {
                 sleep(700);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                TropicalScanner.isScanning = false;
                 return;
             }
             if (curPage < totalPages) {
                 JsonObject page = getPage(curPage);
                 if(page.get("success").getAsBoolean() == false){
                     TropicalScanner.error("Error parsing auction page- key invalid?");
+                    TropicalScanner.isScanning = false;
                     return;
                 }
                 pages.add(page);
@@ -249,17 +258,22 @@ public class ScannerThread extends Thread {
                                                     "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"
                                             )
                             ).toString();
+                            if(scannedCommandables.contains(finalAucUUID)){
+                                continue;
+                            }
+                            scannedCommandables.add(finalAucUUID);
 
-                            ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "say hello"));
+                            ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewauction " + finalAucUUID));
                             comp.setChatStyle(style);
 
-                            Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
+                            //Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
                             ExoticViewer.exotics.add(new Exotic(
                                     name,
                                     finalAucUUID,
                                     hexColor,
                                     getIntFromColor(red, green, blue),
-                                    auction.get("ends").getAsLong()
+                                    auction.get("end").getAsLong(),
+                                    Math.max(auction.get("highest_bid_amount").getAsInt(), auction.get("starting_bid").getAsInt())
                             ));
 
                         }
@@ -268,7 +282,7 @@ public class ScannerThread extends Thread {
 
 
                     } catch (Exception exception) {
-                        exception.printStackTrace();
+                        //lmao
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -278,13 +292,15 @@ public class ScannerThread extends Thread {
             }
 
         }
-
+        if(ModData.instance.showScan) {
+            TropicalScanner.msg("Scan complete");
+        }
+        TropicalScanner.isScanning = false;
     }
-    public int getIntFromColor(int Red, int Green, int Blue){
-        Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
-        Green = (Green << 8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
-        Blue = Blue & 0x000000FF; //Mask out anything not blue.
-
-        return 0xFF000000 | Red | Green | Blue; //0xFF000000 for 100% Alpha. Bitwise OR everything together.
+    public int getIntFromColor(int red, int green, int blue){
+        red = (red << 16) & 0x00FF0000;
+        green = (green << 8) & 0x0000FF00;
+        blue = blue & 0x000000FF;
+        return 0xFF000000 | red | green | blue;
     }
 }

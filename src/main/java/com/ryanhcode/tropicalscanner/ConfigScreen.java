@@ -25,7 +25,7 @@ public class ConfigScreen extends GuiScreen {
     @Override
     public void initGui() {
         doAutoScan = new GuiCheckBox(101, width / 2 - 210, 40, "Do auto scan", ModData.instance.doAutoScan);
-        autoScanTimer = new GuiSlider(101, width / 2 - 210, 60, 440, 20, "Auto Scan Timer: ", " minutes", 3, 60, ModData.instance.autoScanMinutes, false, true);
+        autoScanTimer = new GuiSlider(101, width / 2 - 210, 60, 440, 20, "Auto Scan Timer: ", " minutes", 1, 60, ModData.instance.autoScanMinutes, false, true);
         int step = 120;
         showErrors = new GuiCheckBox(101, width / 2 - 210 + step + step, 40, "Show errors", ModData.instance.showErrors);
         showWarnings = new GuiCheckBox(101, width / 2 - 210 + step, 40, "Show warnings", ModData.instance.showWarnings);
