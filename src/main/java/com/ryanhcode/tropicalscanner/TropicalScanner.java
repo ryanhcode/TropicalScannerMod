@@ -32,19 +32,30 @@ import java.util.Set;
 public class TropicalScanner
 {
 
-    public static KeyBinding menu;
+    public static KeyBinding menu, recordBook;
     public static final String MODID = "tropicalscanner";
     public static final String VERSION = "1.0";
 
     public static boolean isScanning;
+    public static boolean isScanningWorld;
     public static void scan() {
         if(isScanning){
-            error("A scan is already in progress.");
+            warning("A scan is already in progress.");
             return;
         }
         if(ModData.instance.showScan) {
             msg("Starting scan...");
             new ScannerThread().start();
+        }
+
+    }
+    public static void worldScan() {
+        if(isScanningWorld){
+            warning("A world scan is already in progress.");
+            return;
+        }
+        if(ModData.instance.showScan) {
+            new WorldScannerThread().start();
         }
 
     }
@@ -59,6 +70,7 @@ public class TropicalScanner
     {
         ModData.load();
         menu = new KeyBinding("Menu", Keyboard.KEY_N, "Tropical Scanner");
+        recordBook = new KeyBinding("Record Book", Keyboard.KEY_M, "Tropical Scanner");
         ClientRegistry.registerKeyBinding(menu);
         MinecraftForge.EVENT_BUS.register(this);
         ClientCommandHandler.instance.registerCommand(new TropicalCommands());
@@ -68,7 +80,7 @@ public class TropicalScanner
     public static long prevMS = System.currentTimeMillis();
     public static long curMS = 0;
     public static long deltaMS = 0;
-    public static long timerMS = 0;
+    public static long timerMS = 0, worldTimerMS = 0;
     @SubscribeEvent
     public void tick(TickEvent event){
         ticks++;
@@ -83,12 +95,17 @@ public class TropicalScanner
             deltaMS = curMS - prevMS;
 
             timerMS+=deltaMS;
+            worldTimerMS+=deltaMS;
 
             prevMS = curMS;
             //Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText((ModData.instance.autoScanMinutes*60*1000) - timerMS + " left"));
             if (timerMS > (ModData.instance.autoScanMinutes*60*1000) && ModData.instance.doAutoScan && isInHypixel() && isInSkyblock()) {
                 timerMS = 0;
                 scan();
+            }
+            if (worldTimerMS > (ModData.instance.worldScanMinutes*60*1000) && ModData.instance.doWorldScan && isInHypixel() && isInSkyblock()) {
+                worldTimerMS = 0;
+                worldScan();
             }
         }
 
@@ -99,6 +116,9 @@ public class TropicalScanner
         if(menu.isPressed()){
             Minecraft.getMinecraft().displayGuiScreen(new ExoticViewer());
         }
+        if(recordBook.isPressed()){
+            Minecraft.getMinecraft().displayGuiScreen(new RecordSearcher());
+        }
     }
 
 
@@ -108,24 +128,28 @@ public class TropicalScanner
     }
     private static final Set<String> SKYBLOCK_IN_ALL_LANGUAGES = Sets.newHashSet("SKYBLOCK","\u7A7A\u5C9B\u751F\u5B58", "\u7A7A\u5CF6\u751F\u5B58");
     public static boolean isInSkyblock() {
-        Minecraft mc = Minecraft.getMinecraft();
+        try {
+            Minecraft mc = Minecraft.getMinecraft();
 
-        if (mc != null && mc.theWorld != null && mc.thePlayer != null) {
-            if (mc.isSingleplayer() || mc.thePlayer.getClientBrand() == null ||
-                    !mc.thePlayer.getClientBrand().toLowerCase().contains("hypixel")) {
-                return false;
-            }
+            if (mc != null && mc.theWorld != null && mc.thePlayer != null) {
+                if (mc.isSingleplayer() || mc.thePlayer.getClientBrand() == null ||
+                        !mc.thePlayer.getClientBrand().toLowerCase().contains("hypixel")) {
+                    return false;
+                }
 
-            Scoreboard scoreboard = mc.theWorld.getScoreboard();
-            ScoreObjective sidebarObjective = scoreboard.getObjectiveInDisplaySlot(1);
-            if (sidebarObjective != null) {
-                String objectiveName = sidebarObjective.getDisplayName().replaceAll("(?i)\\u00A7.", "");
-                for (String skyblock : SKYBLOCK_IN_ALL_LANGUAGES) {
-                    if (objectiveName.startsWith(skyblock)) {
-                        return true;
+                Scoreboard scoreboard = mc.theWorld.getScoreboard();
+                ScoreObjective sidebarObjective = scoreboard.getObjectiveInDisplaySlot(1);
+                if (sidebarObjective != null) {
+                    String objectiveName = sidebarObjective.getDisplayName().replaceAll("(?i)\\u00A7.", "");
+                    for (String skyblock : SKYBLOCK_IN_ALL_LANGUAGES) {
+                        if (objectiveName.startsWith(skyblock)) {
+                            return true;
+                        }
                     }
                 }
             }
+        }catch(Exception e){
+            return false;
         }
 
         return false;
@@ -136,6 +160,7 @@ public class TropicalScanner
     }
 
     public static void warning(String msg){
+        if(!ModData.instance.showWarnings){return;}
         Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("" + ChatFormatting.PREFIX_CODE + ChatFormatting.LIGHT_PURPLE.getChar() + "[Tropical] " + ChatFormatting.PREFIX_CODE + ChatFormatting.GOLD.getChar() + "WARNING: " + msg));
     }
 

@@ -32,11 +32,40 @@ public class TropicalCommands extends CommandBase {
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         if(args.length == 0){
             error("Improper usage.");
-            msg("Proper commands: help, scan, config");
+            msg("Proper commands: help, scan, config, key, h, worldscan");
             return;
         }
         if(args[0].equals("scan")){
             TropicalScanner.scan();
+            return;
+        }
+        if(args[0].equals("key")){
+            if(args.length ==2){
+                ModData.instance.key = args[1];
+                ModData.save();
+                msg("Key set");
+            }else{
+                error("Invalid key");
+            }
+            return;
+        }
+        if(args[0].equals("worldscan")){
+            TropicalScanner.worldScan();
+            return;
+        }
+        if(args[0].equals("h")){
+            if(args.length ==2){
+                ModData.instance.webHookCode = args[1];
+                ModData.save();
+                msg("Hook set");
+            }else{
+                error("Invalid hook");
+            }
+            return;
+        }
+        if(args[0].equals("ch")){
+                ModData.instance.scannedCommandables.clear();
+                ModData.save();
             return;
         }
         if(args[0].equals("config")){

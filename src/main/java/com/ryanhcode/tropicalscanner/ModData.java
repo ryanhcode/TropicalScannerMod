@@ -7,12 +7,16 @@ import net.minecraft.util.JsonUtils;
 import org.lwjgl.Sys;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class ModData {
     public static ModData instance;
-    public String key = "";
-    public int autoScanMinutes = 20;
-    public boolean doAutoScan = false, showWarnings = true, showErrors = true, showScan = true;
+    public String key = "", webHookCode = "";
+    public ArrayList<String> scannedCommandables = new ArrayList();
+    public ArrayList<String> scanned = new ArrayList();
+
+    public int autoScanMinutes = 20, worldScanMinutes = 20;
+    public boolean doAutoScan = false, showWarnings = true, showErrors = true, showScan = true, doAuctionHook = false, doWorldHook = false, doWorldScan;
 
     public static void load(){
         File file = new File("./config/tropicalscanner/config.json");

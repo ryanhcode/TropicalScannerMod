@@ -266,15 +266,27 @@ public class ScannerThread extends Thread {
                             ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/viewauction " + finalAucUUID));
                             comp.setChatStyle(style);
 
+                            boolean bin = false;
+                            if(auction.has("bin") && auction.get("bin").getAsBoolean()){
+                                bin = true;
+                            }
                             //Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
-                            ExoticViewer.exotics.add(new Exotic(
+                            Exotic exotic = new Exotic(
                                     name,
                                     finalAucUUID,
                                     hexColor,
                                     getIntFromColor(red, green, blue),
                                     auction.get("end").getAsLong(),
-                                    Math.max(auction.get("highest_bid_amount").getAsInt(), auction.get("starting_bid").getAsInt())
-                            ));
+                                    Math.max(auction.get("highest_bid_amount").getAsInt(), auction.get("starting_bid").getAsInt()),
+                                    bin
+
+                            );
+                            ExoticViewer.exotics.add(exotic);
+
+                            if(!ModData.instance.scannedCommandables.contains(finalAucUUID)){
+                                DiscordWebhook.sendAuctionExotic(exotic);
+                                ModData.instance.scannedCommandables.add(finalAucUUID);
+                            }
 
                         }
 
@@ -296,6 +308,7 @@ public class ScannerThread extends Thread {
             TropicalScanner.msg("Scan complete");
         }
         TropicalScanner.isScanning = false;
+        ModData.save();
     }
     public int getIntFromColor(int red, int green, int blue){
         red = (red << 16) & 0x00FF0000;
