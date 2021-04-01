@@ -1,10 +1,14 @@
-package com.ryanhcode.tropicalscanner;
+package com.ryanhcode.tropicalscanner.scan;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import com.ryanhcode.tropicalscanner.ModData;
+import com.ryanhcode.tropicalscanner.ScannerThread;
+import com.ryanhcode.tropicalscanner.util.ConnectionUtils;
+import com.ryanhcode.tropicalscanner.util.DiscordWebhook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,8 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
 
-import static com.ryanhcode.tropicalscanner.TropicalScanner.error;
-import static com.ryanhcode.tropicalscanner.TropicalScanner.msg;
+import static com.ryanhcode.tropicalscanner.scan.TropicalScanner.msg;
 
 public class WorldScannerThread extends Thread {
 
@@ -62,8 +65,7 @@ public class WorldScannerThread extends Thread {
 
             }
         }catch(Exception e){
-            if(e instanceof InterruptedException){
-                return;
+            if(e instanceof InterruptedException){                return;
             }
         }
 

@@ -1,4 +1,6 @@
-package com.ryanhcode.tropicalscanner;
+package com.ryanhcode.tropicalscanner.util;
+
+import com.ryanhcode.tropicalscanner.ModData;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;

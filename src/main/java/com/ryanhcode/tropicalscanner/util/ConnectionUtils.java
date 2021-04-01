@@ -1,4 +1,4 @@
-package com.ryanhcode.tropicalscanner;
+package com.ryanhcode.tropicalscanner.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

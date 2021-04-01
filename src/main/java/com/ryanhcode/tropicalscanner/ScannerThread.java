@@ -5,20 +5,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import com.ryanhcode.tropicalscanner.scan.TropicalScanner;
+import com.ryanhcode.tropicalscanner.util.ConnectionUtils;
+import com.ryanhcode.tropicalscanner.util.DiscordWebhook;
+import com.ryanhcode.tropicalscanner.util.Exotic;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
-import org.apache.logging.log4j.Marker;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class ScannerThread extends Thread {

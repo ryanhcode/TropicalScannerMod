@@ -1,4 +1,4 @@
-package com.ryanhcode.tropicalscanner;
+package com.ryanhcode.tropicalscanner.util;
 
 import net.minecraft.stats.Achievement;
 

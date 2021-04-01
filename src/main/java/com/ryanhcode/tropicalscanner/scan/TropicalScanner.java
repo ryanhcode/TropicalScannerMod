@@ -1,15 +1,15 @@
-package com.ryanhcode.tropicalscanner;
+package com.ryanhcode.tropicalscanner.scan;
 
 import com.google.common.collect.Sets;
-import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.sun.javafx.cursor.StandardCursorFrame;
+import com.ryanhcode.tropicalscanner.ExoticViewer;
+import com.ryanhcode.tropicalscanner.ModData;
+import com.ryanhcode.tropicalscanner.ScannerThread;
+import com.ryanhcode.tropicalscanner.TropicalCommands;
+import com.ryanhcode.tropicalscanner.config.VigilantConfig;
+import com.ryanhcode.tropicalscanner.gui.RecordSearcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.init.Blocks;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ChatComponentText;
@@ -22,9 +22,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
-import scala.collection.parallel.ParIterableLike;
 
 import java.util.Set;
 
@@ -39,6 +37,7 @@ public class TropicalScanner
     public static boolean isScanning;
     public static boolean isScanningWorld;
     public static void scan() {
+
         if(isScanning){
             warning("A scan is already in progress.");
             return;
@@ -85,7 +84,7 @@ public class TropicalScanner
     public void tick(TickEvent event){
         ticks++;
         if(needsToOpenConfig){
-            Minecraft.getMinecraft().displayGuiScreen(new ConfigScreen());
+            Minecraft.getMinecraft().displayGuiScreen(new VigilantConfig().gui());
             needsToOpenConfig = false;
         }
 

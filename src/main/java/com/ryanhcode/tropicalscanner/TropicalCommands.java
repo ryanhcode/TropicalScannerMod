@@ -1,15 +1,12 @@
 package com.ryanhcode.tropicalscanner;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import com.ryanhcode.tropicalscanner.scan.TropicalScanner;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
 
-import static com.ryanhcode.tropicalscanner.TropicalScanner.error;
-import static com.ryanhcode.tropicalscanner.TropicalScanner.msg;
+import static com.ryanhcode.tropicalscanner.scan.TropicalScanner.error;
+import static com.ryanhcode.tropicalscanner.scan.TropicalScanner.msg;
 
 public class TropicalCommands extends CommandBase {
 

@@ -1,15 +1,13 @@
 package com.ryanhcode.tropicalscanner;
 
 
-import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import com.ryanhcode.tropicalscanner.scan.TropicalScanner;
+import com.ryanhcode.tropicalscanner.util.Exotic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.fml.client.config.GuiCheckBox;
-import net.minecraftforge.fml.client.config.GuiSlider;
 
 import java.awt.*;
 import java.io.IOException;

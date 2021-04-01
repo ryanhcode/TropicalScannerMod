@@ -1,6 +1,7 @@
-package com.ryanhcode.tropicalscanner;
+package com.ryanhcode.tropicalscanner.gui;
 
 
+import com.ryanhcode.tropicalscanner.ModData;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
